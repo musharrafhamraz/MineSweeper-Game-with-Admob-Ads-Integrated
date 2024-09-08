@@ -18,6 +18,11 @@ class _GameScreenState extends State<GameScreen>
   AnimationController? _controller;
   Animation<double>? _scaleAnimation;
 
+  // Mobile Ads class members
+
+  late final BannerAd bannerAd;
+  final String adUnitId = "ca-app-pub-3940256099942544/9214589741";
+
   @override
   void initState() {
     super.initState();
@@ -27,8 +32,16 @@ class _GameScreenState extends State<GameScreen>
       vsync: this,
     );
     _scaleAnimation = Tween<double>(begin: 1.0, end: 1.2).animate(_controller!);
-    // Initialize Google Mobile Ads
-    MobileAds.instance.initialize();
+
+    // banner Mobile Ads
+    bannerAd = BannerAd(
+      size: AdSize.banner,
+      adUnitId: adUnitId,
+      listener: _bannerAdListener,
+      request: const AdRequest(),
+    );
+
+    bannerAd.load();
   }
 
   void _initializeGrid() {
@@ -115,6 +128,13 @@ class _GameScreenState extends State<GameScreen>
 
   @override
   Widget build(BuildContext context) {
+    final AdWidget adWidget = AdWidget(ad: bannerAd);
+    final Container adContainer = Container(
+      alignment: Alignment.bottomCenter,
+      width: bannerAd.size.width.toDouble(),
+      height: bannerAd.size.height.toDouble(),
+      child: adWidget,
+    );
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -194,21 +214,7 @@ class _GameScreenState extends State<GameScreen>
                         ),
                       ),
                     ),
-                    Align(
-                      alignment: Alignment.bottomCenter,
-                      child: SizedBox(
-                        height: 50, // Typically the banner height
-                        child: AdWidget(
-                          ad: BannerAd(
-                            size: AdSize.banner,
-                            adUnitId:
-                                'ca-app-pub-3940256099942544/9214589741', // Replace with real Ad Unit ID
-                            listener: const BannerAdListener(),
-                            request: const AdRequest(),
-                          )..load(),
-                        ),
-                      ),
-                    ),
+                    adContainer,
                   ],
                 ),
               ),
@@ -218,4 +224,15 @@ class _GameScreenState extends State<GameScreen>
       ),
     );
   }
+
+  final BannerAdListener _bannerAdListener = BannerAdListener(
+    onAdLoaded: (Ad ad) => print('Ad Loaded'),
+    onAdFailedToLoad: (Ad ad, LoadAdError error) {
+      ad.dispose();
+      print("ad failed to load");
+    },
+    onAdOpened: (Ad ad) => print('Ad opened'),
+    onAdClosed: (Ad ad) => print('Ad closed'),
+    onAdImpression: (Ad ad) => print('Ad impression'),
+  );
 }
