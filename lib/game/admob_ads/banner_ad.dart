@@ -6,7 +6,7 @@ class BannerAdClass {
 
   void loadBannerAd() {
     bannerAd = BannerAd(
-      size: AdSize.banner,
+      size: AdSize.largeBanner,
       adUnitId: adUnitId,
       listener: _bannerAdListener,
       request: const AdRequest(),

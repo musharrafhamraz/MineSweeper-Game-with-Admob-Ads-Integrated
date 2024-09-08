@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:survivegame/animations/button_pressed_animation.dart';
-import 'package:survivegame/game/admob_ads/banner_ad.dart';
 import 'package:survivegame/game/admob_ads/interstial_ad.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:lottie/lottie.dart';
+import 'package:survivegame/game/controllers/game_controllers.dart';
 import 'dart:math';
+
+import 'package:survivegame/game/widgets/ad_widget.dart';
+import 'package:survivegame/game/widgets/dialog_show.dart';
 
 class GameScreen extends StatefulWidget {
   @override
@@ -21,11 +22,8 @@ class _GameScreenState extends State<GameScreen>
   Animation<double>? _scaleAnimation;
 
   // Mobile Ads class members
-
-  // late final BannerAd bannerAd;
-  // final String adUnitId = "ca-app-pub-3940256099942544/9214589741";
-  final bannerAd1 = BannerAdClass();
   final fullAd = InterstialAd();
+  final gameControllers = GameController(gridSize: 10);
 
   @override
   void initState() {
@@ -37,18 +35,7 @@ class _GameScreenState extends State<GameScreen>
     );
     _scaleAnimation = Tween<double>(begin: 1.0, end: 1.2).animate(_controller!);
 
-    // initialize banner Mobile Ads
-    // bannerAd = BannerAd(
-    //   size: AdSize.banner,
-    //   adUnitId: adUnitId,
-    //   listener: _bannerAdListener,
-    //   request: const AdRequest(),
-    // );
-
-    // bannerAd.load();
-
-    bannerAd1.loadBannerAd();
-
+    // initializing the Admob Ads
     fullAd.loadInterstitialAd();
   }
 
@@ -71,10 +58,9 @@ class _GameScreenState extends State<GameScreen>
       setState(() {
         gameOver = true;
       });
-      _showGameOverDialog();
+      GameOverDialog.showGameOverDialog(context, score, startAgain);
     } else {
       _controller!.forward().then((_) => _controller!.reverse());
-      _showPlusTwoAnimation(i, j);
       setState(() {
         score += 2;
         gridData[i][j] = -1; // Mark as clicked
@@ -82,50 +68,13 @@ class _GameScreenState extends State<GameScreen>
     }
   }
 
-  void _showPlusTwoAnimation(int i, int j) {
-    final RenderBox box = context.findRenderObject() as RenderBox;
-    final Offset position = box.localToGlobal(Offset.zero);
-
-    final overlay = Overlay.of(context);
-    final overlayEntry = OverlayEntry(
-      builder: (context) => Positioned(
-        left: position.dx + (j * (box.size.width / gridSize)),
-        top: position.dy + (i * (box.size.height / gridSize)),
-        child: const PlusTwoAnimation(),
-      ),
-    );
-
-    overlay.insert(overlayEntry);
-
-    Future.delayed(const Duration(milliseconds: 800), () {
-      overlayEntry.remove();
+  void startAgain() {
+    setState(() {
+      score = 0;
+      gameOver = false;
+      gridData.clear();
+      _initializeGrid();
     });
-  }
-
-  void _showGameOverDialog() {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text("Game Over"),
-          content: Text("Your score: $score"),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                setState(() {
-                  score = 0;
-                  gameOver = false;
-                  gridData.clear();
-                  _initializeGrid();
-                });
-              },
-              child: Text("Restart"),
-            ),
-          ],
-        );
-      },
-    );
   }
 
   @override
@@ -136,13 +85,6 @@ class _GameScreenState extends State<GameScreen>
 
   @override
   Widget build(BuildContext context) {
-    final AdWidget adWidget = AdWidget(ad: bannerAd1.bannerAd);
-    final Container adContainer = Container(
-      alignment: Alignment.bottomCenter,
-      width: bannerAd1.bannerAd.size.width.toDouble(),
-      height: bannerAd1.bannerAd.size.height.toDouble(),
-      child: adWidget,
-    );
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -229,7 +171,7 @@ class _GameScreenState extends State<GameScreen>
                           onPressed: fullAd.showInterstitial,
                           child: const Text('show Interstitial')),
                     ),
-                    adContainer,
+                    WidgetAd(),
                   ],
                 ),
               ),
@@ -239,15 +181,4 @@ class _GameScreenState extends State<GameScreen>
       ),
     );
   }
-
-  // final BannerAdListener _bannerAdListener = BannerAdListener(
-  //   onAdLoaded: (Ad ad) => print('Ad Loaded'),
-  //   onAdFailedToLoad: (Ad ad, LoadAdError error) {
-  //     ad.dispose();
-  //     print("ad failed to load");
-  //   },
-  //   onAdOpened: (Ad ad) => print('Ad opened'),
-  //   onAdClosed: (Ad ad) => print('Ad closed'),
-  //   onAdImpression: (Ad ad) => print('Ad impression'),
-  // );
 }

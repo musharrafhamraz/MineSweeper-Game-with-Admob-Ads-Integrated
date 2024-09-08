@@ -35,7 +35,7 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   void _navigateToGameScreen() async {
-    await Future.delayed(Duration(seconds: 5));
+    await Future.delayed(Duration(seconds: 2));
     Navigator.of(context)
         .pushReplacement(MaterialPageRoute(builder: (context) => GameScreen()));
   }
