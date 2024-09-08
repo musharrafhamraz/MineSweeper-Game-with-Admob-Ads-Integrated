@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:survivegame/animations/button_pressed_animation.dart';
+import 'package:survivegame/game/admob_ads/banner_ad.dart';
+import 'package:survivegame/game/admob_ads/interstial_ad.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:lottie/lottie.dart';
 import 'dart:math';
@@ -20,8 +22,10 @@ class _GameScreenState extends State<GameScreen>
 
   // Mobile Ads class members
 
-  late final BannerAd bannerAd;
-  final String adUnitId = "ca-app-pub-3940256099942544/9214589741";
+  // late final BannerAd bannerAd;
+  // final String adUnitId = "ca-app-pub-3940256099942544/9214589741";
+  final bannerAd1 = BannerAdClass();
+  final fullAd = InterstialAd();
 
   @override
   void initState() {
@@ -33,15 +37,19 @@ class _GameScreenState extends State<GameScreen>
     );
     _scaleAnimation = Tween<double>(begin: 1.0, end: 1.2).animate(_controller!);
 
-    // banner Mobile Ads
-    bannerAd = BannerAd(
-      size: AdSize.banner,
-      adUnitId: adUnitId,
-      listener: _bannerAdListener,
-      request: const AdRequest(),
-    );
+    // initialize banner Mobile Ads
+    // bannerAd = BannerAd(
+    //   size: AdSize.banner,
+    //   adUnitId: adUnitId,
+    //   listener: _bannerAdListener,
+    //   request: const AdRequest(),
+    // );
 
-    bannerAd.load();
+    // bannerAd.load();
+
+    bannerAd1.loadBannerAd();
+
+    fullAd.loadInterstitialAd();
   }
 
   void _initializeGrid() {
@@ -128,11 +136,11 @@ class _GameScreenState extends State<GameScreen>
 
   @override
   Widget build(BuildContext context) {
-    final AdWidget adWidget = AdWidget(ad: bannerAd);
+    final AdWidget adWidget = AdWidget(ad: bannerAd1.bannerAd);
     final Container adContainer = Container(
       alignment: Alignment.bottomCenter,
-      width: bannerAd.size.width.toDouble(),
-      height: bannerAd.size.height.toDouble(),
+      width: bannerAd1.bannerAd.size.width.toDouble(),
+      height: bannerAd1.bannerAd.size.height.toDouble(),
       child: adWidget,
     );
     return Scaffold(
@@ -214,6 +222,13 @@ class _GameScreenState extends State<GameScreen>
                         ),
                       ),
                     ),
+                    Positioned(
+                      bottom: 150,
+                      left: 100,
+                      child: ElevatedButton(
+                          onPressed: fullAd.showInterstitial,
+                          child: const Text('show Interstitial')),
+                    ),
                     adContainer,
                   ],
                 ),
@@ -225,14 +240,14 @@ class _GameScreenState extends State<GameScreen>
     );
   }
 
-  final BannerAdListener _bannerAdListener = BannerAdListener(
-    onAdLoaded: (Ad ad) => print('Ad Loaded'),
-    onAdFailedToLoad: (Ad ad, LoadAdError error) {
-      ad.dispose();
-      print("ad failed to load");
-    },
-    onAdOpened: (Ad ad) => print('Ad opened'),
-    onAdClosed: (Ad ad) => print('Ad closed'),
-    onAdImpression: (Ad ad) => print('Ad impression'),
-  );
+  // final BannerAdListener _bannerAdListener = BannerAdListener(
+  //   onAdLoaded: (Ad ad) => print('Ad Loaded'),
+  //   onAdFailedToLoad: (Ad ad, LoadAdError error) {
+  //     ad.dispose();
+  //     print("ad failed to load");
+  //   },
+  //   onAdOpened: (Ad ad) => print('Ad opened'),
+  //   onAdClosed: (Ad ad) => print('Ad closed'),
+  //   onAdImpression: (Ad ad) => print('Ad impression'),
+  // );
 }
