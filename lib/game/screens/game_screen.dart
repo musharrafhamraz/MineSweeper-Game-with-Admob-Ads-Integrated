@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:survivegame/game/admob_ads/interstial_ad.dart';
+import 'package:survivegame/game/widgets/dialog_show.dart';
+import 'package:survivegame/game/widgets/ad_widget.dart';
 import 'package:lottie/lottie.dart';
-import 'package:survivegame/game/controllers/game_controllers.dart';
 import 'dart:math';
 
-import 'package:survivegame/game/widgets/ad_widget.dart';
-import 'package:survivegame/game/widgets/dialog_show.dart';
-
 class GameScreen extends StatefulWidget {
+  const GameScreen({super.key});
+
   @override
   _GameScreenState createState() => _GameScreenState();
 }
@@ -23,7 +23,6 @@ class _GameScreenState extends State<GameScreen>
 
   // Mobile Ads class members
   final fullAd = InterstialAd();
-  final gameControllers = GameController(gridSize: 10);
 
   @override
   void initState() {
@@ -69,6 +68,16 @@ class _GameScreenState extends State<GameScreen>
   }
 
   void startAgain() {
+    // Check if the interstitial ad is loaded and show it
+    if (fullAd.isAdLoaded) {
+      fullAd.showInterstitial();
+    } else {
+      print(
+          "Interstitial Ad is not loaded yet. Continuing without showing the ad.");
+      fullAd.loadInterstitialAd(); // Load the ad if not already loaded
+    }
+
+    // Reset the game state
     setState(() {
       score = 0;
       gameOver = false;
@@ -163,13 +172,6 @@ class _GameScreenState extends State<GameScreen>
                           },
                         ),
                       ),
-                    ),
-                    Positioned(
-                      bottom: 150,
-                      left: 100,
-                      child: ElevatedButton(
-                          onPressed: fullAd.showInterstitial,
-                          child: const Text('show Interstitial')),
                     ),
                     WidgetAd(),
                   ],
