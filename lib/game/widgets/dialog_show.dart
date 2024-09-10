@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 class GameOverDialog {
-  static void showGameOverDialog(
-      BuildContext context, int score, VoidCallback onNewGame) {
+  static void showGameOverDialog(BuildContext context, int score,
+      VoidCallback onNewGame, VoidCallback onWatchAd) {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -35,11 +35,13 @@ class GameOverDialog {
               ),
             ),
             TextButton(
-              onPressed: () {
+              onPressed: () async {
                 // Logic to show rewarded ad to continue playing.
+                Navigator.of(context).pop();
+                onWatchAd(); // Call to undo the move after ad is watched
               },
               child: const Text(
-                "Watch Ad",
+                "Don't Loose Score",
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,

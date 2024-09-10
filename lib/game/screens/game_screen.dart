@@ -18,6 +18,9 @@ class _GameScreenState extends State<GameScreen>
   final int gridSize = 10;
   final List<List<int>> gridData = [];
   int score = 0;
+  int lastMoveI = -1;
+  int lastMoveJ = -1;
+  int lastScore = 0;
   bool gameOver = false;
   AnimationController? _controller;
   Animation<double>? _scaleAnimation;
@@ -53,6 +56,8 @@ class _GameScreenState extends State<GameScreen>
     }
   }
 
+  // New function code to keep track of the last move and the last score.
+
   void _handleTap(int i, int j) async {
     if (gameOver || gridData[i][j] == -1) return;
 
@@ -60,13 +65,46 @@ class _GameScreenState extends State<GameScreen>
       setState(() {
         gameOver = true;
       });
-      GameOverDialog.showGameOverDialog(context, score, startAgain);
+      // Save the last move before game over
+      lastMoveI = i;
+      lastMoveJ = j;
+      lastScore = score;
+      GameOverDialog.showGameOverDialog(
+          context, score, startAgain, undoLastMove);
     } else {
       _controller!.forward().then((_) => _controller!.reverse());
       setState(() {
+        // Save the last move before marking it as clicked
+        lastMoveI = i;
+        lastMoveJ = j;
+        lastScore = score;
+
         score += 2;
         gridData[i][j] = -1; // Mark as clicked
       });
+    }
+  }
+
+  void undoLastMove() {
+    // Check if the rewarded ad is ready
+    if (rewardAd.isRewardedAdReady) {
+      // Show rewarded ad if it's ready
+      rewardAd.showRewardedAd(() {
+        setState(() {
+          // Restore the last move and score if the user watched the ad
+          if (lastMoveI != -1 && lastMoveJ != -1) {
+            gridData[lastMoveI][lastMoveJ] = 0; // Undo the last move
+            score = lastScore; // Restore the previous score
+            gameOver = false; // Continue the game
+          }
+        });
+      });
+    } else if (fullAd.isAdLoaded) {
+      // If rewarded ad is not ready, show the interstitial ad
+      fullAd.showInterstitial();
+    } else {
+      // If neither ad is ready, provide feedback
+      print("No ad is ready to show.");
     }
   }
 
@@ -176,9 +214,6 @@ class _GameScreenState extends State<GameScreen>
                         ),
                       ),
                     ),
-                    ElevatedButton(
-                        onPressed: rewardAd.showRewardedAd,
-                        child: const Text('show')),
                     WidgetAd(),
                   ],
                 ),
