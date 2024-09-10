@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:survivegame/game/admob_ads/interstial_ad.dart';
+import 'package:survivegame/game/admob_ads/rewarded_ad.dart';
 import 'package:survivegame/game/widgets/dialog_show.dart';
 import 'package:survivegame/game/widgets/ad_widget.dart';
 import 'package:lottie/lottie.dart';
@@ -23,6 +24,7 @@ class _GameScreenState extends State<GameScreen>
 
   // Mobile Ads class members
   final fullAd = InterstialAd();
+  final rewardAd = RewardedAdClass();
 
   @override
   void initState() {
@@ -36,6 +38,7 @@ class _GameScreenState extends State<GameScreen>
 
     // initializing the Admob Ads
     fullAd.loadInterstitialAd();
+    rewardAd.loadRewardedAd();
   }
 
   void _initializeGrid() {
@@ -173,6 +176,9 @@ class _GameScreenState extends State<GameScreen>
                         ),
                       ),
                     ),
+                    ElevatedButton(
+                        onPressed: rewardAd.showRewardedAd,
+                        child: const Text('show')),
                     WidgetAd(),
                   ],
                 ),
