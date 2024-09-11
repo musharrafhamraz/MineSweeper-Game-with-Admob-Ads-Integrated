@@ -3,6 +3,7 @@ import 'package:survivegame/game/admob_ads/interstial_ad.dart';
 import 'package:survivegame/game/admob_ads/rewarded_ad.dart';
 import 'package:survivegame/game/widgets/dialog_show.dart';
 import 'package:survivegame/game/widgets/ad_widget.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:lottie/lottie.dart';
 import 'dart:math';
 
@@ -102,9 +103,26 @@ class _GameScreenState extends State<GameScreen>
     } else if (fullAd.isAdLoaded) {
       // If rewarded ad is not ready, show the interstitial ad
       fullAd.showInterstitial();
+      setState(() {
+        // Restore the last move and score if the user watched the ad
+        if (lastMoveI != -1 && lastMoveJ != -1) {
+          gridData[lastMoveI][lastMoveJ] = 0; // Undo the last move
+          score = lastScore; // Restore the previous score
+          gameOver = false; // Continue the game
+        }
+      });
     } else {
       // If neither ad is ready, provide feedback
-      print("No ad is ready to show.");
+      // print("No ad is ready to show.");
+      Fluttertoast.showToast(msg: 'No ad is ready to show.');
+      setState(() {
+        // Restore the last move and score if the user watched the ad
+        if (lastMoveI != -1 && lastMoveJ != -1) {
+          gridData[lastMoveI][lastMoveJ] = 0; // Undo the last move
+          score = lastScore; // Restore the previous score
+          gameOver = false; // Continue the game
+        }
+      });
     }
   }
 
@@ -113,8 +131,7 @@ class _GameScreenState extends State<GameScreen>
     if (fullAd.isAdLoaded) {
       fullAd.showInterstitial();
     } else {
-      print(
-          "Interstitial Ad is not loaded yet. Continuing without showing the ad.");
+      Fluttertoast.showToast(msg: 'Interstitial Ad is not loaded yet.');
       fullAd.loadInterstitialAd(); // Load the ad if not already loaded
     }
 
@@ -214,7 +231,7 @@ class _GameScreenState extends State<GameScreen>
                         ),
                       ),
                     ),
-                    WidgetAd(),
+                    const WidgetAd(),
                   ],
                 ),
               ),
