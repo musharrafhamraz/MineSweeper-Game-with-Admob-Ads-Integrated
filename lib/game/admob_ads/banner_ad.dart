@@ -2,7 +2,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 class BannerAdClass {
   late final BannerAd bannerAd;
-  final String adUnitId = "ca-app-pub-3940256099942544/9214589741";
+  final String adUnitId = "ca-app-pub-4838289781790500/3449261273";
 
   void loadBannerAd() {
     bannerAd = BannerAd(
